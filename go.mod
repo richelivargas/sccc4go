@@ -1,4 +1,4 @@
-module sccc4go
+module github.com/richelivargas/sccc4go
 
 go 1.24.1
 
