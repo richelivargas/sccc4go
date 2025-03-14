@@ -121,7 +121,7 @@ func (d *CloudConfigClient) Get(keys ...string) interface{} {
 		d.Raw()
 	}
 
-	var value interface{} = &d.raw
+	var value interface{} = *d.raw
 	for _, key := range keys {
 		if value == nil {
 			return value
