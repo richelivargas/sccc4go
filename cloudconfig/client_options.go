@@ -9,7 +9,7 @@ func WithBranch(branch string) ClientOption {
 		if branch == "" {
 			return errors.New("branch must not be empty")
 		}
-		
+
 		c.branch = branch
 		return nil
 	}
