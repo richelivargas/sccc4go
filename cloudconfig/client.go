@@ -18,7 +18,7 @@ type CloudConfigClient struct {
 	branch      string
 	format      Format
 	basicAuth   *basicAuthInfo
-	raw         map[string]interface{}
+	raw         *map[string]interface{}
 }
 
 type basicAuthInfo struct {
@@ -111,17 +111,17 @@ func (d *CloudConfigClient) Decode(v interface{}) error {
 func (d *CloudConfigClient) Raw() map[string]interface{} {
 	var raw map[string]interface{}
 	d.Decode(&raw)
-	d.raw = raw
+	d.raw = &raw
 	return raw
 }
 
 func (d *CloudConfigClient) Get(keys ...string) interface{} {
 
-	if d.raw == nil || len(d.raw) == 0 {
+	if d.raw == nil {
 		d.Raw()
 	}
 
-	var value interface{} = d.raw
+	var value interface{} = &d.raw
 	for _, key := range keys {
 		if value == nil {
 			return value
