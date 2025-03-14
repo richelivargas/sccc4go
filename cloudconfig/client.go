@@ -117,7 +117,7 @@ func (d *CloudConfigClient) Raw() map[string]interface{} {
 
 func (d *CloudConfigClient) Get(keys ...string) interface{} {
 
-	if d.raw == nil {
+	if d.raw == nil || len(d.raw) == 0 {
 		d.Raw()
 	}
 
