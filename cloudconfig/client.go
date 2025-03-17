@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"net/url"
 
@@ -91,6 +92,10 @@ func (d *CloudConfigClient) Fetch() (io.ReadCloser, error) {
 		return nil, errors.Wrap(err, "config resolution failed")
 	}
 
+	if response.StatusCode > 299 {
+		return nil, errors.Errorf("error do get config data: [%v] - %v", response.StatusCode, response.Status)
+	}
+
 	return response.Body, nil
 }
 
@@ -108,17 +113,21 @@ func (d *CloudConfigClient) Decode(v interface{}) error {
 	return yaml.NewDecoder(reader).Decode(v)
 }
 
-func (d *CloudConfigClient) Raw() map[string]interface{} {
+func (d *CloudConfigClient) Raw() (map[string]interface{}, error) {
 	var raw map[string]interface{}
-	d.Decode(&raw)
+	if err := d.Decode(&raw); err != nil {
+		return nil, err
+	}
 	d.raw = &raw
-	return raw
+	return raw, nil
 }
 
 func (d *CloudConfigClient) Get(keys ...string) interface{} {
 
 	if d.raw == nil {
-		d.Raw()
+		if _, err := d.Raw(); err != nil {
+			log.Fatal(err)
+		}
 	}
 
 	var value interface{} = *d.raw
