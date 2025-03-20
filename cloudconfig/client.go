@@ -57,7 +57,7 @@ func NewClient(host string, application string, profile string, opts ...ClientOp
 	return client, nil
 }
 
-func (client *CloudConfigClient) url() string {
+func (client *CloudConfigClient) Url() string {
 
 	url := client.host
 
@@ -72,7 +72,10 @@ func (client *CloudConfigClient) url() string {
 
 func (d *CloudConfigClient) Fetch() (io.ReadCloser, error) {
 
-	u := d.url()
+	u := d.Url()
+
+	log.Println("config server uri: ", u)
+
 	if _, err := url.Parse(u); err != nil {
 		return nil, errors.Wrapf(err, "invalid config url [%s]", u)
 	}
@@ -84,10 +87,14 @@ func (d *CloudConfigClient) Fetch() (io.ReadCloser, error) {
 
 	if d.basicAuth != nil {
 		request.SetBasicAuth(d.basicAuth.username, d.basicAuth.password)
+		log.Println("config server authorization: Basic(", d.basicAuth.username, ":", d.basicAuth.password, ")")
 	}
 
 	httpClient := http.Client{}
 	response, err := httpClient.Do(request)
+
+	log.Println("config server response status: ", response.Status)
+
 	if err != nil {
 		return nil, errors.Wrap(err, "config resolution failed")
 	}
@@ -105,6 +112,8 @@ func (d *CloudConfigClient) Decode(v interface{}) error {
 	if err != nil {
 		return err
 	}
+
+	defer log.Println("config server data: ", v)
 
 	if d.format == JSONFormat {
 		return json.NewDecoder(reader).Decode(v)
